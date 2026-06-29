@@ -1,0 +1,38 @@
+name: Build & Publish p2 Repository
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build repository (from source repo)
+        run: |
+          git clone https://github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
+          cd source
+          mvn clean verify
+
+      - name: Prepare docs folder
+        run: |
+          rm -rf docs
+          mkdir -p docs/refd-core/repository
+          cp -r source/nl.ou.refd.core.repository/target/repository/* docs/refd-core/repository/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
