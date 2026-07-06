@@ -23,6 +23,8 @@ jobs:
           java-version: 21
 
       - name: Build repository (from source repo)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone https://github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
           cd source
