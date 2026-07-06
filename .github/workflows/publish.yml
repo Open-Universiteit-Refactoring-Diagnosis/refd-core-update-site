@@ -26,7 +26,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.REFD_CORE_TOKEN }}
         run: |
-          git clone https://github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
+          git clone https://x-access-token:${TOKEN}@github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
           cd source
           mvn clean verify
 
