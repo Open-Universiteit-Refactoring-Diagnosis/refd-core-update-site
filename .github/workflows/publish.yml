@@ -25,7 +25,10 @@ jobs:
       - name: Install UI dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0
+          sudo apt-get install -y \
+            xvfb \
+            dbus-x11 \
+            libgtk-3-0
 
       - name: Install Atlas license
         env:
@@ -37,14 +40,24 @@ jobs:
           echo "$LICENSE_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/license"
           echo "$KEY_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/$KEY_FILENAME"
           
-      - name: Build repository (from source repo)
+      - name: Clone source repository
         env:
           TOKEN: ${{ secrets.REFD_CORE_TOKEN }}
         run: |
           git clone https://x-access-token:${TOKEN}@github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
-          cd source
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" mvn clean verify
 
+      - name: Build repository (from source repo)
+        working-directory: source
+        env:
+          NO_AT_BRIDGE: 1
+          GDK_BACKEND: x11
+        run: |
+          dbus-run-session -- \
+          xvfb-run \
+          --auto-servernum \
+          --server-args="-screen 0 1920x1080x24" \
+          mvn clean verify
+          
       - name: Prepare docs folder
         run: |
           rm -rf docs
