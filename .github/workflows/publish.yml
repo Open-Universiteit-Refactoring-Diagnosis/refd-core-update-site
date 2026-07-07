@@ -27,10 +27,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb libgtk-3-0
 
-      - name: Install Graphviz
+      - name: Install Atlas license
+        env:
+          LICENSE_B64: ${{ secrets.ATLAS_LICENSE_B64 }}
+          KEY_B64: ${{ secrets.ATLAS_LICENSE_KEY_B64 }}
+          KEY_FILENAME: ${{ secrets.ATLAS_LICENSE_FILENAME }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz
+          mkdir -p "$HOME/.ensoft/Atlas/license"
+          echo "$LICENSE_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/license"
+          echo "$KEY_B64" | base64 -d > "$HOME/.ensof/Atlas/license/$KEY_FILENAME"
           
       - name: Build repository (from source repo)
         env:
