@@ -39,6 +39,7 @@ jobs:
           mkdir -p "$HOME/.ensoft/Atlas/license"
           echo "$LICENSE_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/license"
           echo "$KEY_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/$KEY_FILENAME"
+          touch "$HOME/.ensoft/Atlas/footprint"
           
       - name: Clone source repository
         env:
