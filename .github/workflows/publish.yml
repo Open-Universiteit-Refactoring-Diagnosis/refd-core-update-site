@@ -39,6 +39,7 @@ jobs:
           mkdir -p "$HOME/.ensoft/Atlas/license"
           echo "$LICENSE_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/license"
           echo "$KEY_B64" | base64 -d > "$HOME/.ensoft/Atlas/license/$KEY_FILENAME"
+          # required to prevent blocking Atlas dialog at first start of Eclipse
           touch "$HOME/.ensoft/Atlas/footprint"
           
       - name: Clone source repository
@@ -57,7 +58,7 @@ jobs:
           xvfb-run \
           --auto-servernum \
           --server-args="-screen 0 1920x1080x24" \
-          mvn -X clean verify
+          mvn clean verify
           
       - name: Prepare docs folder
         run: |
