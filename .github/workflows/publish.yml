@@ -8,7 +8,13 @@ on:
     types: [upstream-main-updated]
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -50,7 +56,7 @@ jobs:
         run: |
           git clone https://x-access-token:${TOKEN}@github.com/Open-Universiteit-Refactoring-Diagnosis/refd-core.git source
 
-      - name: Build repository (from source repo)
+      - name: Build repository
         working-directory: source
         env:
           NO_AT_BRIDGE: 1
@@ -62,19 +68,35 @@ jobs:
           --server-args="-screen 0 1920x1080x24" \
           mvn clean verify
           
-      - name: Prepare docs folder
+      - name: Prepare Pages content
         run: |
-          rm -rf docs
-          mkdir -p docs/refd-core/repository
-          cp -r source/nl.ou.refd.core.repository/target/repository/* docs/refd-core/repository/
+          mkdir -p pages/refd-core/repository
+          cp -r source/nl.ou.refd.core.repository/target/repository/* pages/refd-core/repository/
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          path: pages
 
       - name: Show Eclipse log
         if: failure()
         run: |
           cat source/nl.ou.refd.core.tests/target/work/data/.metadata/.log || true
+          
+  deploy:
+    needs: build
+  
+    permissions:
+      pages: write
+      id-token: write
+  
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+  
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
